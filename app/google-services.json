@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "182472276335",
+    "project_id": "travelr-87d35",
+    "storage_bucket": "travelr-87d35.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182472276335:android:b95ee80b74902efa84109a",
+        "android_client_info": {
+          "package_name": "uk.ac.tees.mad.travelr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAss5AiiA6DQy4NCxgc2X8GlLoVCC9bcpc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

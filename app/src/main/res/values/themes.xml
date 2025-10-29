@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Travelr" parent="android:Theme.Material.Light.NoActionBar" >
+        // makes default screen translucent
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+</resources>
