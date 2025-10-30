@@ -99,26 +99,14 @@ fun SignUpScreen(
                         placeHolderText = "Enter your password",
                         value = signUpUiState.value.password,
                         image = Icons.Default.Lock,
-//                        transformation = PasswordVisualTransformation(),
                         onValueChange = {
                             viewModel.updatePasswordSignUp(it)
                         }
                     )
-//                    OutlinedTextFieldCmp(
-//                        titleText = "Confirm Password",
-//                        placeHolderText = "Confirm your Password",
-//                        value = signupUiState.value.confirmPassword,
-//                        image = Icons.Default.Lock,
-//                        transformation = PasswordVisualTransformation(),
-//                        onValueChange = {
-//                            signUpViewModel.updateConfirmPassword(it)
-//                        }
-//                    )
                 }
 
                 Button(
                     onClick = {
-                        // Validation
                         viewModel.signUpUser(
                             onSuccess = {
                                 onNavigationToHome()
@@ -171,7 +159,6 @@ fun SignUpScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Google Sign In button
 
                 Spacer(modifier = Modifier.height(24.dp))
 

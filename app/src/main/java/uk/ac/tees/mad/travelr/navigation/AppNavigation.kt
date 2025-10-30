@@ -11,26 +11,29 @@ import uk.ac.tees.mad.travelr.ui.screens.SignInScreen
 import uk.ac.tees.mad.travelr.ui.screens.SignUpScreen
 import uk.ac.tees.mad.travelr.ui.screens.SplashScreen
 import uk.ac.tees.mad.travelr.viewmodels.AuthScreenViewModel
+import uk.ac.tees.mad.travelr.viewmodels.HomeScreenViewModel
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
 
     val navController = rememberNavController()
-    val viewModel = hiltViewModel<AuthScreenViewModel>()
+    val authViewModel = hiltViewModel<AuthScreenViewModel>()
+
+    val homeViewModel=hiltViewModel<HomeScreenViewModel>()
 
     NavHost(navController = navController, startDestination = Screen.SplashScreen.route) {
 
         composable(Screen.SplashScreen.route) {
-            SplashScreen(navController = navController, viewModel = viewModel)
+            SplashScreen(navController = navController, viewModel = authViewModel)
         }
 
         composable(Screen.HomeScreen.route) {
-            HomeScreen()
+            HomeScreen(viewModel = homeViewModel)
         }
 
         composable(Screen.SignInScreen.route) {
             SignInScreen(
-                viewModel = viewModel,
+                viewModel = authViewModel,
                 onNavigateToSignUp = {
                     navController.navigate(Screen.SignUpScreen.route) {
                         popUpTo(Screen.SignInScreen.route) {
@@ -50,7 +53,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
 
         composable(Screen.SignUpScreen.route) {
             SignUpScreen(
-                viewModel=viewModel,
+                viewModel=authViewModel,
                 onNavigationToSignIn = {
                     navController.navigate(Screen.SignInScreen.route) {
                         popUpTo(Screen.SignUpScreen.route) {

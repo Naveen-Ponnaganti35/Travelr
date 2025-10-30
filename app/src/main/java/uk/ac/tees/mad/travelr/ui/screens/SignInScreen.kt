@@ -137,11 +137,28 @@ fun SignInScreen(
                             }
                         ),
                         singleLine = true,
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedBorderColor = Color(0xFF22C55E),
-//                            focusedLabelColor = Color(0xFF22C55E)
-//                        )
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Forgot Password?",
+                        color = Color(0xFF22C55E),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .clickable {
+                                viewModel.forgotPassword(
+                                    onSuccess = {
+                                        Toast.makeText(context, "If this email is registered, a reset link has been sent.", Toast.LENGTH_SHORT).show()
+                                    },
+                                    onError = { error ->
+                                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
+                    )
+
 
                     Spacer(modifier = Modifier.height(32.dp))
 
@@ -163,7 +180,6 @@ fun SignInScreen(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF22C55E)
                         ),
-//                    enabled = signInViewModel.isSignInValid()
                     ) {
                         Text(
                             text = "Sign In",
