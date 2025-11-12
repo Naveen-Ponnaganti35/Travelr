@@ -8,6 +8,8 @@ data class DestinationData(
     val bookingLink: String?,
     @SerializedName("description")
     val description: String?,
+    @SerializedName("shortDescription")  // Add this line
+    val shortDescription: String?,
     @SerializedName("geoCode")
     val geoCode: GeoCode?,
     @SerializedName("id")

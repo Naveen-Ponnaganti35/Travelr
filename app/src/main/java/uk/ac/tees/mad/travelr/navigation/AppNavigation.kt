@@ -6,7 +6,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import uk.ac.tees.mad.travelr.ui.screens.HomeScreen
+import uk.ac.tees.mad.travelr.ui.screens.MainScreen
 import uk.ac.tees.mad.travelr.ui.screens.SignInScreen
 import uk.ac.tees.mad.travelr.ui.screens.SignUpScreen
 import uk.ac.tees.mad.travelr.ui.screens.SplashScreen
@@ -28,7 +28,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         }
 
         composable(Screen.HomeScreen.route) {
-            HomeScreen(viewModel = homeViewModel)
+            MainScreen(viewModel = homeViewModel)
         }
 
         composable(Screen.SignInScreen.route) {

@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class GeoCode(
     @SerializedName("latitude")
-    val latitude: Double?,
+    val latitude: Double,
     @SerializedName("longitude")
-    val longitude: Double?
+    val longitude: Double
 )

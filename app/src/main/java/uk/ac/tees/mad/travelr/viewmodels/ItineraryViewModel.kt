@@ -1,0 +1,55 @@
+package uk.ac.tees.mad.travelr.viewmodels
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import uk.ac.tees.mad.travelr.data.local.ItineraryRepository
+import uk.ac.tees.mad.travelr.data.models.destinations.DestinationData
+import javax.inject.Inject
+
+
+@HiltViewModel
+class ItineraryViewModel @Inject constructor(
+    private val repository: ItineraryRepository
+) : ViewModel() {
+
+    private val _itineraries = MutableStateFlow<List<DestinationData>>(emptyList())
+
+    val itineraries = _itineraries.asStateFlow()
+
+    init {
+        fetchItineraries()
+    }
+
+    fun fetchItineraries() {
+        viewModelScope.launch {
+            _itineraries.value = repository.getAllItineraries().reversed()
+        }
+    }
+
+    fun saveItineraries(destination: DestinationData) {
+        viewModelScope.launch {
+            repository.insertItinerary(destination)
+            fetchItineraries()
+        }
+    }
+
+    fun isInItinerary(id:String,callback:(Boolean)->Unit){
+        viewModelScope.launch {
+            val exists=repository.isInItinerary(id)
+            callback(exists)
+        }
+    }
+
+
+    fun deleteItinerary(destinationId: String) {
+        viewModelScope.launch {
+            repository.deleteItinerary(destinationId)
+            fetchItineraries()
+        }
+    }
+
+}
