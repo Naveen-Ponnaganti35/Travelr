@@ -2,6 +2,8 @@ package uk.ac.tees.mad.travelr.di
 
 import android.content.Context
 import androidx.room.Room
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,6 +12,8 @@ import dagger.hilt.components.SingletonComponent
 import uk.ac.tees.mad.travelr.data.local.AppDatabase
 import uk.ac.tees.mad.travelr.data.local.ItineraryDao
 import uk.ac.tees.mad.travelr.data.local.ItineraryRepository
+import uk.ac.tees.mad.travelr.data.local.user.UserProfileDao
+import uk.ac.tees.mad.travelr.data.models.user.ProfileRepository
 import javax.inject.Singleton
 
 
@@ -17,6 +21,27 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
+
+    @Provides
+    fun provideUserProfileDao(db: AppDatabase): UserProfileDao {
+        return db.userProfileDao()
+    }
+
+    // Repositories
+    @Provides
+    @Singleton
+    fun provideProfileRepository(dao: UserProfileDao): ProfileRepository {
+        return ProfileRepository(dao)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
     @Provides
     @Singleton

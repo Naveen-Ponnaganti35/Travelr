@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
@@ -304,14 +305,16 @@ fun ActivityItem(
     val showRemoveDialog = rememberSaveable { mutableStateOf(false) }
     val itemId = rememberSaveable { mutableStateOf<String?>(null) }
 
-    if (showRemoveDialog.value && itemId.value != null) {
+    val safeItemId = itemId.value
+
+    if (showRemoveDialog.value && safeItemId != null) {
         AlertDialog(
             onDismissRequest = { showRemoveDialog.value = false },
             title = { Text("Remove from Itinerary?") },
             text = { Text("Are you sure you want to remove '${activity.name}' from your itinerary?") },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.deleteItinerary(itemId.value!!)
+                    viewModel.deleteItinerary(safeItemId)
                     isSaved.value = false
                     showRemoveDialog.value = false
                 }) {
@@ -326,6 +329,7 @@ fun ActivityItem(
         )
     }
 
+    // maintain a boolean key in data class
     LaunchedEffect(activity.id) {
         activity.id?.let { id ->
             viewModel.isInItinerary(id) {

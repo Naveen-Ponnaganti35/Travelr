@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import uk.ac.tees.mad.travelr.data.models.user.UserProfile
+import uk.ac.tees.mad.travelr.data.models.user.UserProfileEntity
 import uk.ac.tees.mad.travelr.ui.components.OutlinedTextFieldCmp
 import uk.ac.tees.mad.travelr.ui.components.TitleHeader
 import uk.ac.tees.mad.travelr.viewmodels.AuthScreenViewModel
@@ -29,7 +31,8 @@ import uk.ac.tees.mad.travelr.viewmodels.AuthScreenViewModel
 fun SignUpScreen(
     modifier: Modifier = Modifier,
     onNavigationToSignIn: () -> Unit,
-    onNavigationToHome: () -> Unit ,
+    onNavigationToHome: () -> Unit,
+    saveProfile:(UserProfile)->Unit={},
     viewModel: AuthScreenViewModel= hiltViewModel(),
 ) {
     val scrollState = rememberScrollState()
@@ -110,6 +113,12 @@ fun SignUpScreen(
                         viewModel.signUpUser(
                             onSuccess = {
                                 onNavigationToHome()
+                                saveProfile(
+                                    UserProfile(
+                                        fullName = signUpUiState.value.fullName,
+                                        email = signUpUiState.value.email
+                                    )
+                                )
                             },
                             onError = {error->
                                 Toast.makeText(context, error, Toast.LENGTH_SHORT).show()

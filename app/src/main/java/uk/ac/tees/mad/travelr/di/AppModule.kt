@@ -23,8 +23,8 @@ object AppModule {
     private const val BASE_URL = "https://test.api.amadeus.com/v1/"
 
     //    private const val AUTH_TOKEN = "yPr3dSe4UlvCnpSYHAjeFbwAelvF"
-    private const val CLIENT_ID = "KvXH4B5pJsKGJid9IhwLDnrru1risAyo"
-    private const val CLIENT_SECRET = "faXbdB6CCVIBybt3"
+    private const val CLIENT_ID = "nbaFY1dYp3acCX2pGjjCPRmHZueDpETl"
+    private const val CLIENT_SECRET = "dvkfOW4PQ3qr6H95"
 
     @Provides
     @Singleton

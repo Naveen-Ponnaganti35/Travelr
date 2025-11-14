@@ -5,8 +5,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -19,13 +17,23 @@ import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.ItineraryScreen
 import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.ProfileScreen
 import uk.ac.tees.mad.travelr.viewmodels.HomeScreenViewModel
 import uk.ac.tees.mad.travelr.viewmodels.ItineraryViewModel
+import uk.ac.tees.mad.travelr.viewmodels.ProfileScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: HomeScreenViewModel) {
+fun MainScreen(
+    homeViewModel: HomeScreenViewModel,
+    profileViewModel: ProfileScreenViewModel,
+    logOut: () -> Unit,
+
+    itineraryViewModel: ItineraryViewModel,
+    deleteUser: () -> Unit,
+) {
     val bottomNavController = rememberNavController()
-    val homeViewModel=hiltViewModel<HomeScreenViewModel>()
-    val itineraryViewModel: ItineraryViewModel=hiltViewModel()
+//    val homeViewModel = hiltViewModel<HomeScreenViewModel>()
+//    val itineraryViewModel: ItineraryViewModel = hiltViewModel()
+
+//    val profileViewModel: ProfileScreenViewModel=hiltViewModel()
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -72,22 +80,33 @@ fun MainScreen(viewModel: HomeScreenViewModel) {
                     viewModel = itineraryViewModel
                 )
             }
-            composable(
-                route = BottomNavScreen.Attractions.route
-            ) {
-                AttractionScreen()
-            }
+//            composable(
+//                route = BottomNavScreen.Attractions.route
+//            ) {
+//                AttractionScreen(
+//                    latitude = 40.414000,
+//                    longitude = -3.691000,
+//                )
+//            }
             composable(
                 route = BottomNavScreen.Itinerary.route
             ) {
                 ItineraryScreen(
-                    viewModel=itineraryViewModel
+                    viewModel = itineraryViewModel
                 )
             }
             composable(
                 route = BottomNavScreen.Profile.route
             ) {
-                ProfileScreen()
+                ProfileScreen(
+                    viewModel = profileViewModel,
+                    logOutUser ={
+                        logOut()
+                    },
+                    deleteUser={
+                        deleteUser()
+                    }
+                )
             }
         }
     }
@@ -97,6 +116,6 @@ fun MainScreen(viewModel: HomeScreenViewModel) {
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
-    MainScreen(viewModel = hiltViewModel())
+//    MainScreen(viewModel = hiltViewModel(), profileViewModel1 = profileViewModel)
 }
 
