@@ -7,13 +7,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import uk.ac.tees.mad.travelr.data.models.user.toEntity
 import uk.ac.tees.mad.travelr.ui.screens.MainScreen
 import uk.ac.tees.mad.travelr.ui.screens.SignInScreen
 import uk.ac.tees.mad.travelr.ui.screens.SignUpScreen
 import uk.ac.tees.mad.travelr.ui.screens.SplashScreen
 import uk.ac.tees.mad.travelr.viewmodels.AuthScreenViewModel
 import uk.ac.tees.mad.travelr.viewmodels.HomeScreenViewModel
+import uk.ac.tees.mad.travelr.viewmodels.ItineraryViewModel
 import uk.ac.tees.mad.travelr.viewmodels.ProfileScreenViewModel
 
 @Composable
@@ -26,14 +26,41 @@ fun AppNavigation(modifier: Modifier = Modifier) {
 
     val profileViewModel = hiltViewModel<ProfileScreenViewModel>()
 
+    val itinerariesViewModel = hiltViewModel<ItineraryViewModel>()
+
     NavHost(navController = navController, startDestination = Screen.SplashScreen.route) {
 
         composable(Screen.SplashScreen.route) {
-            SplashScreen(navController = navController, viewModel = authViewModel)
+            SplashScreen(navController = navController, viewModel = authViewModel, fetchProfile = {
+                profileViewModel.fetchCurrentUser()
+            })
         }
 
         composable(Screen.HomeScreen.route) {
-            MainScreen(viewModel = homeViewModel,profileViewModel)
+            MainScreen(
+                homeViewModel = homeViewModel,
+                profileViewModel = profileViewModel,
+                itineraryViewModel = itinerariesViewModel,
+                logOut = {
+                    itinerariesViewModel.deleteAllItineraries()
+                    profileViewModel.deleteLocalUser()
+                    authViewModel.logOutUser()
+                    navController.navigate(Screen.SignInScreen.route) {
+                        popUpTo(Screen.HomeScreen.route) {
+                            inclusive = true
+                        }
+                    }
+                },
+                deleteUser = {
+                    itinerariesViewModel.deleteAllItineraries()
+                    profileViewModel.deleteLocalUser()
+                    navController.navigate(Screen.SignInScreen.route) {
+                        popUpTo(Screen.HomeScreen.route) {
+                            inclusive = true
+                        }
+                    }
+                },
+            )
         }
 
         composable(Screen.SignInScreen.route) {
@@ -48,6 +75,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 },
                 onNavigationToHome = {
                     profileViewModel.fetchCurrentUser()
+                    itinerariesViewModel.fetchItineraries()
                     navController.navigate(Screen.HomeScreen.route) {
                         popUpTo(Screen.SignInScreen.route) {
                             inclusive = true
@@ -68,6 +96,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     }
                 },
                 onNavigationToHome = {
+                    itinerariesViewModel.fetchItineraries()
                     navController.navigate(Screen.HomeScreen.route) {
                         popUpTo(Screen.SignUpScreen.route) {
                             inclusive = true

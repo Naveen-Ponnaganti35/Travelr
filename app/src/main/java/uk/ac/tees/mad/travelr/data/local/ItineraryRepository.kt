@@ -21,10 +21,10 @@ class ItineraryRepository(
 //    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
 
-    val userItineraries = FirebaseFirestore.getInstance()
-        .collection("users")
-        .document(auth.currentUser?.uid ?: UUID.randomUUID().toString())
-        .collection("itineraries")
+//    val userItineraries = FirebaseFirestore.getInstance()
+//        .collection("users")
+//        .document(auth.currentUser?.uid ?: UUID.randomUUID().toString())
+//        .collection("itineraries")
 
     private val firestore= FirebaseFirestore.getInstance()
     private fun getUserItinerariesCollection()=firestore.collection("users")
@@ -90,7 +90,7 @@ class ItineraryRepository(
     suspend fun getAllItineraries(): List<DestinationData> {
         return withContext(Dispatchers.IO) {
             try {
-                userItineraries.get().await().documents.mapNotNull {
+                getUserItinerariesCollection().get().await().documents.mapNotNull {
                     val entity = it.toObject(ItineraryEntity::class.java)
                     entity?.let {
                         if (!dao.itemAlreadyExists(it.id)) dao.insert(it)
@@ -154,5 +154,15 @@ class ItineraryRepository(
         return withContext(Dispatchers.IO) {
             dao.getItemById(id) != null
         }
+    }
+
+    suspend fun deleteAllItineraries(){
+        return withContext(Dispatchers.IO){
+            dao.deleteAllItineraries()
+        }
+    }
+
+    suspend fun getLatestItinerary(): ItineraryEntity?{
+        return dao.getLatestItinerary()
     }
 }
