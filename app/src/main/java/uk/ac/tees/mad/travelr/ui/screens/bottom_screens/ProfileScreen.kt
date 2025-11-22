@@ -1,13 +1,15 @@
 package uk.ac.tees.mad.travelr.ui.screens.bottom_screens
 
+import android.Manifest
+import android.os.Build
 import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -18,32 +20,69 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.launch
 import uk.ac.tees.mad.travelr.data.models.user.UserPreferences
+import uk.ac.tees.mad.travelr.notification.NotificationHelper
+import uk.ac.tees.mad.travelr.notification.NotificationScheduler
+import uk.ac.tees.mad.travelr.utils.CloudinaryUploader
+import uk.ac.tees.mad.travelr.utils.ImagePrefs
 import uk.ac.tees.mad.travelr.viewmodels.ProfileScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    viewModel: ProfileScreenViewModel =hiltViewModel(),
+    viewModel: ProfileScreenViewModel = hiltViewModel(),
+    logOutUser: () -> Unit,
+    deleteUser: () -> Unit,
 ) {
     val userProfile by viewModel.currentUser.collectAsStateWithLifecycle()
     var showEditDialog by remember { mutableStateOf(false) }
     var showPreferencesSheet by remember { mutableStateOf(false) }
-    var editField by remember { mutableStateOf<EditField>(EditField.NAME) }
+    var editField by remember { mutableStateOf(EditField.NAME) }
+    var password by remember { mutableStateOf("") }
 
     Log.d("Profile", "ProfileScreen: $userProfile")
 
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+
+    var showLogOutConformation by remember { mutableStateOf(false) }
 
 //    LaunchedEffect(Unit) {
-//        viewModel.fetchCurrentUser()
+//        NotificationHelper.createNotificationChannel(context)
+//        if (userProfile.preferences.notificationEnabled) {
+//            if (NotificationHelper.hasNotificationPermission(context)) {
+//                NotificationScheduler.scheduleDailyReminder(
+//                    title = "",
+//                    message = "",
+//                    context = context
+//                )
+//            }
+//            Toast.makeText(context, "notification are enabled", Toast.LENGTH_SHORT).show()
+//        }
 //    }
+
+
+    //    LaunchedEffect(Unit) {
+    //        viewModel.fetchCurrentUser()
+    //    }
+
+    // Initialize notification channel once
+    LaunchedEffect(Unit) {
+        NotificationHelper.createNotificationChannel(context)
+    }
+    NotificationPermission()
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -54,7 +93,7 @@ fun ProfileScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(240.dp)
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
@@ -71,21 +110,113 @@ fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Profile Avatar
+
+                // Profile Avatar with Camera
                 Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .background(Color.White),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.BottomEnd
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile",
-                        modifier = Modifier.size(48.dp),
-                        tint = Color(0xFF667EEA)
+                    val context = LocalContext.current
+                    val coroutineScope = rememberCoroutineScope()
+
+//                    Load saved image URL on start using shared prefs
+                    var uploadedImageUrl by remember {
+                        mutableStateOf(ImagePrefs.getImageUrl(context))
+                    }
+                    var isUploading by remember { mutableStateOf(false) }
+
+                    // Create temp file for camera
+                    val photoFile = remember {
+                        java.io.File(context.cacheDir, "profile_${System.currentTimeMillis()}.jpg")
+                    }
+                    val photoUri = androidx.core.content.FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.provider",
+                        photoFile
                     )
+
+                    // Camera launcher
+                    val cameraLauncher = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.TakePicture()
+                    ) { success ->
+                        if (success) {
+                            isUploading = true
+
+                            // Upload to Cloudinary
+                            coroutineScope.launch {
+                                val imageUrl = CloudinaryUploader.uploadImage(context, photoUri)
+                                isUploading = false
+
+                                if (imageUrl != null) {
+                                    uploadedImageUrl = imageUrl
+                                    ImagePrefs.saveImageUrl(context, imageUrl) // ✅ Save it!
+                                    Toast.makeText(context, "Image uploaded!", Toast.LENGTH_SHORT)
+                                        .show()
+                                } else {
+                                    Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                            }
+                        }
+                    }
+
+                    // Avatar Box
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(3.dp, Color(0xFF667EEA), CircleShape)
+                            .clickable { cameraLauncher.launch(photoUri) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        when {
+                            isUploading -> {
+                                CircularProgressIndicator(
+                                    color = Color(0xFF667EEA),
+                                    strokeWidth = 3.dp
+                                )
+                            }
+
+                            uploadedImageUrl != null -> {
+                                Image(
+                                    painter = rememberAsyncImagePainter(uploadedImageUrl),
+                                    contentDescription = "Profile Photo",
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+
+                            else -> {
+                                Icon(
+                                    imageVector = Icons.Default.CameraAlt,
+                                    contentDescription = "Add Photo",
+                                    modifier = Modifier.size(48.dp),
+                                    tint = Color(0xFF667EEA)
+                                )
+                            }
+                        }
+                    }
+
+                    // Camera badge icon
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF10B981))
+                            .clickable { cameraLauncher.launch(photoUri) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = "Change Photo",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
+
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -127,15 +258,15 @@ fun ProfileScreen(
                 }
             )
 
-//            EditableInfoItem(
-//                icon = Icons.Default.Email,
-//                title = "Email",
-//                value = userProfile.email.ifEmpty { "Not set" },
-//                onClick = {
-//                    editField = EditField.EMAIL
-//                    showEditDialog = true
-//                }
-//            )
+            //            EditableInfoItem(
+            //                icon = Icons.Default.Email,
+            //                title = "Email",
+            //                value = userProfile.email.ifEmpty { "Not set" },
+            //                onClick = {
+            //                    editField = EditField.EMAIL
+            //                    showEditDialog = true
+            //                }
+            //            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -187,6 +318,33 @@ fun ProfileScreen(
                 title = "Push Notifications",
                 isEnabled = userProfile.preferences.notificationEnabled,
                 onToggle = { enabled ->
+                    //enabled will show the notification
+                    if (enabled) {
+                        // if permission are there
+                        if (NotificationHelper.hasNotificationPermission(context)) {
+                            // Schedule daily reminder
+                            NotificationScheduler.scheduleDailyReminder(
+                                title = "",
+                                message = "",
+                                context = context
+                            )
+                            Toast.makeText(context, "Notifications enabled", Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            // no permission is there
+                            Toast.makeText(
+                                context,
+                                "Please grant notification permission",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@SwitchSettingItem
+                        }
+                    } else {
+                        // Cancel daily reminder
+                        NotificationScheduler.cancelNotification(context, 1001)
+                        Toast.makeText(context, "Notifications disabled", Toast.LENGTH_SHORT)
+                            .show()
+                    }
                     val updatedPreferences = userProfile.preferences.copy(
                         notificationEnabled = enabled
                     )
@@ -210,16 +368,69 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Logout Button
-            Button(
-                onClick = { /* Logout */ },
+
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = {
+                    if (NotificationHelper.hasNotificationPermission(context)) {
+//                        // Show immediate notification
+//                        NotificationScheduler.showImmediateNotification(
+//                            context = context,
+//
+//                        )
+
+
+//                         schedule for 10 sec or time
+                        NotificationScheduler.scheduleNotification(
+                            context = context,
+                            title = "Travelr Reminder",
+                            message = "Start your journey now",
+                            delayInSeconds = 5, // 10 seconds delay
+                            notificationId = 9999
+                        )
+                        Toast.makeText(context, "Notification sent!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Please enable notifications first",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text("Test Notification", fontSize = 16.sp)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+
+            // log out user Button
+            OutlinedButton(
+                onClick = {
+//                    // log out the user
+//                    logOutUser()
+
+                    showLogOutConformation = true
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFEF4444)
-                )
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFFEF4444)
+                ),
+                border = BorderStroke(1.5.dp, Color(0xFFEF4444))
             ) {
                 Icon(
                     imageVector = Icons.Default.ExitToApp,
@@ -227,14 +438,95 @@ fun ProfileScreen(
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Logout", fontSize = 16.sp)
+                Text("Logout", fontSize = 16.sp, fontWeight = FontWeight.Medium)
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+
+            Button(
+                onClick = {
+                    //                    deleteUser()
+                    showDeleteConfirmation = true
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF991B1B)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text("Delete Account", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            }
+
 
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 
-    // Edit Dialog
+
+// log out
+
+    if (showLogOutConformation) {
+        LogOutDialog(
+            onConfirm = {
+                showLogOutConformation = false
+                logOutUser()
+                Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
+            },
+            onDismiss = {
+                showLogOutConformation = false
+            }
+        )
+    }
+
+// delete account
+    if (showDeleteConfirmation) {
+        DeleteAccountDialog(
+            onConfirm = {
+                //                if(){
+                viewModel.deleteUserAccountPermanently(
+                    onSuccess = {
+                        //                        logOutUser() // Navigate to sign-in screen
+                        deleteUser()
+                        Toast.makeText(
+                            context,
+                            "Account deleted successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                    },
+                    onError = { error ->
+                        Toast.makeText(
+                            context,
+                            error,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    password = password
+                )
+                password = ""
+                showDeleteConfirmation = false
+            },
+            password = password,
+            onValueChange = {
+                password = it
+            },
+            onDismiss = {
+                password = ""
+                showDeleteConfirmation = false
+            }
+        )
+    }
+
+// Edit Dialog
     if (showEditDialog) {
         EditFieldDialog(
             field = editField,
@@ -254,7 +546,7 @@ fun ProfileScreen(
         )
     }
 
-    // Preferences Bottom Sheet
+// Preferences Bottom Sheet
     if (showPreferencesSheet) {
         PreferencesBottomSheet(
             preferences = userProfile.preferences,
@@ -267,6 +559,141 @@ fun ProfileScreen(
         )
     }
 }
+
+
+@Composable
+fun LogOutDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.ExitToApp,
+                contentDescription = null,
+                tint = Color(0xFF3B82F6),
+                modifier = Modifier.size(48.dp)
+            )
+        },
+        title = {
+            Text(
+                text = "Log Out?",
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1E3A8A),
+                fontSize = 20.sp
+            )
+        },
+        text = {
+            Text(
+                text = "Are you sure you want to log out ?",
+                color = Color(0xFF374151),
+                fontSize = 15.sp
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF3B82F6)
+                ),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text("Yes, Log Out")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = Color(0xFF6B7280))
+            }
+        }
+    )
+}
+
+
+@Preview(showBackground = true)
+@Composable
+private fun LogOutDialogPreview() {
+    LogOutDialog(
+        {}, {}
+    )
+}
+
+
+@Composable
+fun DeleteAccountDialog(
+    password: String,
+    onValueChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = null,
+                tint = Color(0xFF991B1B),
+                modifier = Modifier.size(48.dp)
+            )
+        },
+        title = {
+            Text(
+                text = "Delete Account?",
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF991B1B)
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    text = "This action cannot be undone. All your data will be permanently deleted:",
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("• Your profile information", fontSize = 14.sp)
+                Text("• All saved itineraries", fontSize = 14.sp)
+                Text("• Your account access", fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "Are you absolutely sure?",
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF991B1B)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = onValueChange,
+                    label = { Text("Password") },
+                    placeholder = { Text("Enter your password") },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    shape = RoundedCornerShape(8.dp),
+                )
+
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF991B1B)
+                )
+            ) {
+                Text("Yes, Delete My Account")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = Color(0xFF6B7280))
+            }
+        }
+    )
+}
+
 
 @Composable
 fun EditableInfoItem(
@@ -468,7 +895,8 @@ fun PreferencesBottomSheet(
 
             // Destination Type Dropdown
             var expandedDestination by remember { mutableStateOf(false) }
-            val destinationTypes = listOf("Beach", "Mountain", "Historical", "City", "Adventure")
+            val destinationTypes =
+                listOf("Beach", "Mountain", "Historical", "City", "Adventure")
 
             Text("Favorite Destination Type", fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.height(8.dp))
@@ -614,24 +1042,75 @@ fun PreferenceItem(
                 )
             }
 
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
-                contentDescription = null,
-                tint = Color(0xFF718096)
-            )
+//            Icon(
+//                imageVector = Icons.Default.KeyboardArrowRight,
+//                contentDescription = null,
+//                tint = Color(0xFF718096)
+//            )
         }
     }
 
     Spacer(modifier = Modifier.height(8.dp))
 }
 
+
 enum class EditField(val displayName: String) {
     NAME("Name"),
     EMAIL("Email")
 }
 
+@Composable
+fun NotificationPermission(
+    onPermissionGranted: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            onPermissionGranted()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!NotificationHelper.hasNotificationPermission(context)) {
+                showDialog = true
+            }
+        }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Enable Notifications") },
+            text = { Text("Get reminders about your trips and travel updates.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
+                ) {
+                    Text("Allow")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Skip")
+                }
+            }
+        )
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
 private fun ProfileScreenPreview() {
-    ProfileScreen()
+    ProfileScreen(viewModel = hiltViewModel(), logOutUser = {}, deleteUser = {})
 }

@@ -100,4 +100,26 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.6.1")
 
+    // notification
+    implementation("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
+
+
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.work:work-runtime-ktx:2.9.1") // for background scheduling
+
+
+    //maps
+    implementation("org.maplibre.gl:android-sdk:11.13.5")
+
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+
+
+// Check latest on GitHub
+// Optional: For better Compose integration
+    implementation("androidx.compose.ui:ui:1.6.0")
+// Your version
+
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
+
+
 }

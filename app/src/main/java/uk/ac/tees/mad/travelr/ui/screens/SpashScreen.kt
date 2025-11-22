@@ -30,6 +30,7 @@ import uk.ac.tees.mad.travelr.viewmodels.AuthScreenViewModel
 fun SplashScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    fetchProfile:()->Unit,
     viewModel: AuthScreenViewModel = hiltViewModel()
 ) {
     val isLoggedIn = viewModel.isLoggedIn.collectAsStateWithLifecycle()
@@ -48,6 +49,7 @@ fun SplashScreen(
         if (!showSplashScreen.value && isLoggedIn.value != null) {
             // logged in
             if (isLoggedIn.value == true) {
+                fetchProfile()
                 navController.navigate(Screen.HomeScreen.route) {
                     popUpTo(Screen.SplashScreen.route) {
                         inclusive = true
@@ -80,6 +82,7 @@ private fun SplashScreenPreview() {
 
     SplashScreen(
         navController = rememberNavController(),
+        fetchProfile = {}
     )
 
 }

@@ -16,7 +16,7 @@ data class UserProfile(
 data class UserPreferences(
     val favoriteDestinationType:String="Historical",
     val currency:String="USD",
-    val notificationEnabled: Boolean=true,
+    val notificationEnabled: Boolean=false,
     val emailUpdatesEnabled:Boolean=true,
 )
 
@@ -28,7 +28,7 @@ data class UserProfileEntity(
     val email: String,
     val favoriteDestinationType: String = "Historical",
     val currency: String = "USD",
-    val notificationEnabled: Boolean = true,
+    val notificationEnabled: Boolean = false,
     val emailUpdatesEnabled: Boolean = true
 )
 // Mapping functions

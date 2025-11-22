@@ -9,14 +9,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomNavScreen(val route: String, val title: String, val icon: ImageVector) {
     object Home : BottomNavScreen("home", "Home", Icons.Default.Home)
-    object Attractions : BottomNavScreen("attractions", "Attractions", Icons.Default.Place)
+//    object Attractions : BottomNavScreen("attractions", "Attractions", Icons.Default.Place)
     object Itinerary : BottomNavScreen("itinerary", "Itinerary", Icons.Default.List)
     object Profile : BottomNavScreen("profile", "Profile", Icons.Default.Person)
 }
 
 val bottomNavScreens = listOf(
     BottomNavScreen.Home,
-    BottomNavScreen.Attractions,
+//    BottomNavScreen.Attractions,
     BottomNavScreen.Itinerary,
     BottomNavScreen.Profile
 )
