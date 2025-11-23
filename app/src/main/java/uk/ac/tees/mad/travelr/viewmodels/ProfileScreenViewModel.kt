@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.travelr.viewmodels
 
-import android.R.attr.password
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.travelr.data.models.user.ProfileRepository
 import uk.ac.tees.mad.travelr.data.models.user.UserProfile
+import uk.ac.tees.mad.travelr.utils.CloudinaryUploader
 import javax.inject.Inject
 
 
@@ -20,11 +22,31 @@ class ProfileScreenViewModel @Inject constructor(
 
     private val _currentUser = MutableStateFlow<UserProfile>(UserProfile())
     val currentUser: StateFlow<UserProfile> = _currentUser
-//
+
+
+
+    private val _isUploading = MutableStateFlow(false)
+    val isUploading: StateFlow<Boolean> = _isUploading
+    //
 //    init {
 ////        // Fetch the current user when the ViewModel is created
 //        fetchCurrentUser()
 //    }
+    fun uploadProfileImage(context: Context, imageUri: Uri) {
+        _isUploading.value=true
+        viewModelScope.launch {
+            try{
+                val imageUrl = CloudinaryUploader.uploadImage(context, imageUri)
+                if (imageUrl != null) {
+                    val updatedUser = _currentUser.value.copy(profileImageUrl = imageUrl)
+                    updateUser(updatedUser) // Already saves to Firestore!
+                }
+            }finally {
+                _isUploading.value=false
+            }
+        }
+    }
+
 
     fun fetchCurrentUser() {
         viewModelScope.launch {
@@ -35,7 +57,7 @@ class ProfileScreenViewModel @Inject constructor(
     }
 
     fun deleteUserAccountPermanently(
-        password:String,
+        password: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
@@ -69,7 +91,7 @@ class ProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun deleteLocalUser(){
+    fun deleteLocalUser() {
         viewModelScope.launch {
             userRepository.deleteLocalUser()
         }

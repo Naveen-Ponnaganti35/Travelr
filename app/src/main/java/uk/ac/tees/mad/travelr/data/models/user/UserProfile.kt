@@ -8,6 +8,7 @@ data class UserProfile(
     val userId:String="",
     val fullName:String="",
     val email:String="",
+    val profileImageUrl: String = "",
     val preferences:UserPreferences=UserPreferences()
 ){
 
@@ -26,6 +27,7 @@ data class UserProfileEntity(
     @PrimaryKey val userId: String,
     val fullName: String,
     val email: String,
+    val profileImageUrl: String = "",
     val favoriteDestinationType: String = "Historical",
     val currency: String = "USD",
     val notificationEnabled: Boolean = false,
@@ -36,6 +38,7 @@ fun UserProfile.toEntity() = UserProfileEntity(
     userId = userId,
     fullName = fullName,
     email = email,
+    profileImageUrl = profileImageUrl,
     favoriteDestinationType = preferences.favoriteDestinationType,
     currency = preferences.currency,
     notificationEnabled = preferences.notificationEnabled,
@@ -46,6 +49,7 @@ fun UserProfileEntity.toUserProfile() = UserProfile(
     userId = userId,
     fullName = fullName,
     email = email,
+    profileImageUrl = profileImageUrl,
     preferences = UserPreferences(
         favoriteDestinationType = favoriteDestinationType,
         currency = currency,

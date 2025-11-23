@@ -130,74 +130,8 @@ class ProfileRepository @Inject constructor(
             e.printStackTrace()
             UserProfile()
         }
-//        val uid = auth.currentUser?.uid ?: return UserProfile() // return empty if no logged-in user
-//        val docRef = firestore.collection("users").document(uid)
-//
-//        return try {
-//            val snapshot = docRef.get().await()
-//            val userProfile = snapshot.toObject(UserProfile::class.java)
-//            userProfile?.let {
-//                // Cache in Room for next time
-//                userDao.insertUser(it.toEntity())
-//            }
-//            userProfile ?: UserProfile() // return empty if Firestore doc missing
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            UserProfile() // return empty on error
-//        }
     }
 
 
-//    val userProfile = FirebaseFirestore.getInstance()
-//        .collection("users")
-//        .document(auth.currentUser?.uid ?: UUID.randomUUID().toString())
-////        .collection("userProfile")
-
-
-//    suspend fun insertUser(user: UserProfile) {
-//        withContext(Dispatchers.IO) {
-//            userDao.insertUser(user.toEntity())
-//            userProfile.set(user).await()
-////            val docId = user.toUserProfile().userId.ifEmpty {
-////                UUID.randomUUID().toString()
-////            }
-////            userProfile.
-////                .set(user)
-//        }
-//    }
-//
-//    suspend fun updateUser(user: UserProfile) {
-//        withContext(Dispatchers.IO) {
-//            userDao.updateUser(user.toEntity())
-//
-//            userProfile.set(user).await()
-//        }
-//    }
-//
-//    suspend fun getCurrentUser(): UserProfile {
-//        return withContext(Dispatchers.IO) {
-////            userDao.getCurrentUser()
-//
-////            try {
-//            // Try Room first (offline-first approach)
-//            val storeUser = userDao.getCurrentUser()
-////            } catch (e: Exception) {
-//            // If not in Room, fetch from Firestore
-////            try {
-////                val firestoreUser = userProfile
-////                    .get()
-////                    .await()
-////                    .toObject(UserProfileEntity::class.java)
-////
-////                // Save to Room for next time
-////                firestoreUser?.let { userDao.insertUser(it) }
-////
-////                firestoreUser
-////            } catch (firestoreError: Exception) {
-////                null
-////            }
-//            storeUser.toUserProfile()
-//        }
-//    }
 }
 

@@ -26,16 +26,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.rememberAsyncImagePainter
-import kotlinx.coroutines.launch
+import coil.compose.SubcomposeAsyncImage
 import uk.ac.tees.mad.travelr.data.models.user.UserPreferences
 import uk.ac.tees.mad.travelr.notification.NotificationHelper
 import uk.ac.tees.mad.travelr.notification.NotificationScheduler
-import uk.ac.tees.mad.travelr.utils.CloudinaryUploader
-import uk.ac.tees.mad.travelr.utils.ImagePrefs
 import uk.ac.tees.mad.travelr.viewmodels.ProfileScreenViewModel
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +57,7 @@ fun ProfileScreen(
 
 
     var showLogOutConformation by remember { mutableStateOf(false) }
-
+    val isUploading by viewModel.isUploading.collectAsStateWithLifecycle()
 //    LaunchedEffect(Unit) {
 //        NotificationHelper.createNotificationChannel(context)
 //        if (userProfile.preferences.notificationEnabled) {
@@ -116,46 +115,36 @@ fun ProfileScreen(
                     contentAlignment = Alignment.BottomEnd
                 ) {
                     val context = LocalContext.current
-                    val coroutineScope = rememberCoroutineScope()
+//                    val coroutineScope = rememberCoroutineScope()
 
-//                    Load saved image URL on start using shared prefs
-                    var uploadedImageUrl by remember {
-                        mutableStateOf(ImagePrefs.getImageUrl(context))
-                    }
-                    var isUploading by remember { mutableStateOf(false) }
+////                    Load saved image URL on start using shared prefs
+//                    var uploadedImageUrl by remember {
+//                        mutableStateOf(ImagePrefs.getImageUrl(context))
+//                    }
+
+                    val uploadedImageUrl = userProfile.profileImageUrl
+//                    var isUploading by remember { mutableStateOf(false) }
 
                     // Create temp file for camera
                     val photoFile = remember {
-                        java.io.File(context.cacheDir, "profile_${System.currentTimeMillis()}.jpg")
+                        File(context.cacheDir, "profile_${System.currentTimeMillis()}.jpg")
                     }
-                    val photoUri = androidx.core.content.FileProvider.getUriForFile(
+                    val photoUri = FileProvider.getUriForFile(
                         context,
                         "${context.packageName}.provider",
                         photoFile
                     )
+
 
                     // Camera launcher
                     val cameraLauncher = rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.TakePicture()
                     ) { success ->
                         if (success) {
-                            isUploading = true
-
-                            // Upload to Cloudinary
-                            coroutineScope.launch {
-                                val imageUrl = CloudinaryUploader.uploadImage(context, photoUri)
-                                isUploading = false
-
-                                if (imageUrl != null) {
-                                    uploadedImageUrl = imageUrl
-                                    ImagePrefs.saveImageUrl(context, imageUrl) // ✅ Save it!
-                                    Toast.makeText(context, "Image uploaded!", Toast.LENGTH_SHORT)
-                                        .show()
-                                } else {
-                                    Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT)
-                                        .show()
-                                }
-                            }
+                            viewModel.uploadProfileImage(
+                                context,
+                                photoUri
+                            ) // ViewModel handles loading!
                         }
                     }
 
@@ -165,8 +154,7 @@ fun ProfileScreen(
                             .size(120.dp)
                             .clip(CircleShape)
                             .background(Color.White)
-                            .border(3.dp, Color(0xFF667EEA), CircleShape)
-                            .clickable { cameraLauncher.launch(photoUri) },
+                            .border(3.dp, Color(0xFF667EEA), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         when {
@@ -177,20 +165,51 @@ fun ProfileScreen(
                                 )
                             }
 
-                            uploadedImageUrl != null -> {
-                                Image(
-                                    painter = rememberAsyncImagePainter(uploadedImageUrl),
+                            uploadedImageUrl.isNotEmpty() -> {
+//                                Image(
+//                                    painter = rememberAsyncImagePainter(uploadedImageUrl),
+//                                    contentDescription = "Profile Photo",
+//                                    modifier = Modifier
+//                                        .size(120.dp)
+//                                        .clip(CircleShape),
+//                                    contentScale = ContentScale.Crop
+//                                )
+
+                                SubcomposeAsyncImage(
+                                    model = uploadedImageUrl,
                                     contentDescription = "Profile Photo",
                                     modifier = Modifier
                                         .size(120.dp)
                                         .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
+                                    contentScale = ContentScale.Crop,
+                                    loading = {
+                                        // Show spinner while image loads from Cloudinary
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator(
+                                                color = Color(0xFF667EEA),
+                                                strokeWidth = 3.dp,
+                                                modifier = Modifier.size(40.dp)
+                                            )
+                                        }
+                                    },
+                                    error = {
+                                        // Show icon if image fails to load
+                                        Icon(
+                                            imageVector = Icons.Default.Person,
+                                            contentDescription = "Error",
+                                            modifier = Modifier.size(48.dp),
+                                            tint = Color(0xFF667EEA)
+                                        )
+                                    }
                                 )
                             }
 
                             else -> {
                                 Icon(
-                                    imageVector = Icons.Default.CameraAlt,
+                                    imageVector = Icons.Default.Person,
                                     contentDescription = "Add Photo",
                                     modifier = Modifier.size(48.dp),
                                     tint = Color(0xFF667EEA)
@@ -202,7 +221,7 @@ fun ProfileScreen(
                     // Camera badge icon
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(Color(0xFF10B981))
                             .clickable { cameraLauncher.launch(photoUri) },
@@ -212,7 +231,7 @@ fun ProfileScreen(
                             imageVector = Icons.Default.CameraAlt,
                             contentDescription = "Change Photo",
                             tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }

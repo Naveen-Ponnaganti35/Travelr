@@ -193,23 +193,23 @@ object CloudinaryUploader {
 
 
 
-object ImagePrefs {
-    // storing data in shared prefs
-    private const val PREFS_NAME = "travelr_prefs"
-    private const val KEY_PROFILE_IMAGE = "profile_image_url"
-
-    fun saveImageUrl(context: Context, url: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(KEY_PROFILE_IMAGE, url)
-            .apply()
-    }
-
-    fun getImageUrl(context: Context): String? {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(KEY_PROFILE_IMAGE, null)
-    }
-}
+//object ImagePrefs {
+//    // storing data in shared prefs
+//    private const val PREFS_NAME = "travelr_prefs"
+//    private const val KEY_PROFILE_IMAGE = "profile_image_url"
+//
+//    fun saveImageUrl(context: Context, url: String) {
+//        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+//            .edit()
+//            .putString(KEY_PROFILE_IMAGE, url)
+//            .apply()
+//    }
+//
+//    fun getImageUrl(context: Context): String? {
+//        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+//            .getString(KEY_PROFILE_IMAGE, null)
+//    }
+//}
 
 
 // user takes photo-> save it to cloudinary ->save it url locally and then ->we get the image after the app closer also
