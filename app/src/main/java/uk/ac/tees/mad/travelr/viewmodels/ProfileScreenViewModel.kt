@@ -56,6 +56,8 @@ class ProfileScreenViewModel @Inject constructor(
         }
     }
 
+
+    // will permanently delete the account
     fun deleteUserAccountPermanently(
         password: String,
         onSuccess: () -> Unit,

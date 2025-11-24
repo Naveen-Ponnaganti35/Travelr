@@ -41,6 +41,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 homeViewModel = homeViewModel,
                 profileViewModel = profileViewModel,
                 itineraryViewModel = itinerariesViewModel,
+                // log out implementation
                 logOut = {
                     itinerariesViewModel.deleteAllItineraries()
                     profileViewModel.deleteLocalUser()
@@ -51,6 +52,8 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                         }
                     }
                 },
+                // delete account implementation
+                // clear data first then delete the account
                 deleteUser = {
                     itinerariesViewModel.deleteAllItineraries()
                     profileViewModel.deleteLocalUser()

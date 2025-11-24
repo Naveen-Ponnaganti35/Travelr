@@ -434,7 +434,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
 
-            // log out user Button
+            // log out user Button ->show the dialog
             OutlinedButton(
                 onClick = {
 //                    // log out the user
@@ -491,7 +491,7 @@ fun ProfileScreen(
     }
 
 
-// log out
+// log out dialog for conformation
 
     if (showLogOutConformation) {
         LogOutDialog(
@@ -506,7 +506,7 @@ fun ProfileScreen(
         )
     }
 
-// delete account
+// delete account for conformation
     if (showDeleteConfirmation) {
         DeleteAccountDialog(
             onConfirm = {
