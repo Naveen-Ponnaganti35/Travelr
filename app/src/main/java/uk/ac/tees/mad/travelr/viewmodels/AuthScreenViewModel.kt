@@ -86,7 +86,6 @@ class AuthScreenViewModel
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         onSuccess()
-                        _signUpUiState.value= SignUpUiState()
                     } else {
                         onError(task.exception?.message ?: "Sign up Failed")
                     }
@@ -108,9 +107,7 @@ class AuthScreenViewModel
             FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-
                         onSuccess()
-                        _signInUiState.value= SignInUiState()
                     } else {
                         onError(task.exception?.message ?: "Sign in Failed")
                     }
@@ -161,16 +158,6 @@ class AuthScreenViewModel
                 _isLoggedIn.value = false
             }
             _showSplashScreen.value = false
-        }
-    }
-
-    fun logOutUser(){
-        // log out the user from the firebase
-        viewModelScope.launch {
-            try{ FirebaseAuth.getInstance().signOut() }
-            catch(e:Exception){
-                Log.d("Logout", "logOutUser: enable to log out ")
-            }
         }
     }
 

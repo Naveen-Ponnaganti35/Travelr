@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import uk.ac.tees.mad.travelr.data.local.ItineraryEntity
 import uk.ac.tees.mad.travelr.data.local.ItineraryRepository
 import uk.ac.tees.mad.travelr.data.models.destinations.DestinationData
 import javax.inject.Inject
@@ -20,9 +19,6 @@ class ItineraryViewModel @Inject constructor(
     private val _itineraries = MutableStateFlow<List<DestinationData>>(emptyList())
 
     val itineraries = _itineraries.asStateFlow()
-
-    private val _latestItinerary = MutableStateFlow<ItineraryEntity?>(null)
-    val latestItinerary = _latestItinerary.asStateFlow()
 
     init {
         fetchItineraries()
@@ -53,20 +49,6 @@ class ItineraryViewModel @Inject constructor(
         viewModelScope.launch {
             repository.deleteItinerary(destinationId)
             fetchItineraries()
-        }
-    }
-
-    fun deleteAllItineraries(){
-        viewModelScope.launch {
-            repository.deleteAllItineraries()
-            fetchItineraries()
-
-        }
-    }
-
-    fun getLatestItinerary(){
-        viewModelScope.launch {
-            _latestItinerary.value=repository.getLatestItinerary()
         }
     }
 
