@@ -37,9 +37,11 @@ class ProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             try{
                 val imageUrl = CloudinaryUploader.uploadImage(context, imageUri)
+                // if upload success
                 if (imageUrl != null) {
                     val updatedUser = _currentUser.value.copy(profileImageUrl = imageUrl)
-                    updateUser(updatedUser) // Already saves to Firestore!
+                    // Already saves to Firestore
+                    updateUser(updatedUser)
                 }
             }finally {
                 _isUploading.value=false
@@ -79,7 +81,7 @@ class ProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             Log.d("Hello viewmodel", "insertUser: ${user.fullName} && ${user.email}")
             userRepository.insertUser(user)
-            // Optionally, refresh the current user after insertion
+            // refresh the current user after insertion
             fetchCurrentUser()
         }
     }
@@ -88,7 +90,7 @@ class ProfileScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _currentUser.value = user
             userRepository.updateUser(user)
-            // Optionally, refresh the current user after update
+            //  refresh the current user after update
             fetchCurrentUser()
         }
     }

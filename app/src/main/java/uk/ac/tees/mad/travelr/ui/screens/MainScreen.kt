@@ -11,7 +11,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import uk.ac.tees.mad.travelr.navigation.bottom_navigation.BottomNavScreen
 import uk.ac.tees.mad.travelr.navigation.bottom_navigation.bottomNavScreens
-import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.AttractionScreen
 import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.HomeScreen
 import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.ItineraryScreen
 import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.ProfileScreen
@@ -80,14 +79,7 @@ fun MainScreen(
                     viewModel = itineraryViewModel
                 )
             }
-//            composable(
-//                route = BottomNavScreen.Attractions.route
-//            ) {
-//                AttractionScreen(
-//                    latitude = 40.414000,
-//                    longitude = -3.691000,
-//                )
-//            }
+
             composable(
                 route = BottomNavScreen.Itinerary.route
             ) {
@@ -100,10 +92,10 @@ fun MainScreen(
             ) {
                 ProfileScreen(
                     viewModel = profileViewModel,
-                    logOutUser ={
+                    logOutUser = {
                         logOut()
                     },
-                    deleteUser={
+                    deleteUser = {
                         deleteUser()
                     }
                 )

@@ -102,19 +102,6 @@ class ProfileRepository @Inject constructor(
                 remoteUser
             }
 
-//            try {
-//                // Try Room first (fast, offline)
-//                val localUser = userDao.getCurrentUser()
-//                // no user locally
-//                if(localUser==null){
-//                    val remoteUser=fetchUserFromFirestore()
-//                    userDao.insertUser(remoteUser.toEntity())
-//                }
-//                localUser?.toUserProfile() ?: fetchUserFromFirestore()
-//            } catch (e: Exception) {
-//                // If something fails, fallback to Firestore
-//                fetchUserFromFirestore()
-//            }
 
         }
         Log.d("Hello", "getCurrentUser:  PR ${userDao.getCurrentUser()}")
