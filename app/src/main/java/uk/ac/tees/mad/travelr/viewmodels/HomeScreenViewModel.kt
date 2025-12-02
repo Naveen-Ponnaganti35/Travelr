@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.travelr.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -154,7 +155,7 @@ class HomeScreenViewModel @Inject constructor(
                         return@launch
                     }
 
-
+                    Log.d("lat and long", "fetchActivities: ${firstValidGeoCode.latitude} and ${firstValidGeoCode.longitude} ")
                     // second api call
                     fetchDestination(firstValidGeoCode.latitude, firstValidGeoCode.longitude)
 
@@ -325,5 +326,14 @@ class HomeScreenViewModel @Inject constructor(
     //    companion object {
     //        const val TAG = "HomeScreenViewModel"
     //    }
+
+
+    fun resetToDefault() {
+        _searchInput.value = ""
+        _homeUiState.update {
+            it.copy(isLoading = true)
+        }
+        fetchActivities("london")
+    }
 
 }

@@ -112,13 +112,13 @@ fun SignUpScreen(
                     onClick = {
                         viewModel.signUpUser(
                             onSuccess = {
-                                onNavigationToHome()
                                 saveProfile(
                                     UserProfile(
                                         fullName = signUpUiState.value.fullName,
                                         email = signUpUiState.value.email
                                     )
                                 )
+                                onNavigationToHome()
                             },
                             onError = {error->
                                 Toast.makeText(context, error, Toast.LENGTH_SHORT).show()

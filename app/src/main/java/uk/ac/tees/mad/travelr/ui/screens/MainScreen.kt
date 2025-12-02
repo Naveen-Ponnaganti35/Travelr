@@ -5,14 +5,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import uk.ac.tees.mad.travelr.navigation.bottom_navigation.BottomNavScreen
 import uk.ac.tees.mad.travelr.navigation.bottom_navigation.bottomNavScreens
-import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.AttractionScreen
 import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.HomeScreen
 import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.ItineraryScreen
 import uk.ac.tees.mad.travelr.ui.screens.bottom_screens.ProfileScreen
@@ -22,10 +20,17 @@ import uk.ac.tees.mad.travelr.viewmodels.ProfileScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: HomeScreenViewModel, profileViewModel: ProfileScreenViewModel) {
+fun MainScreen(
+    homeViewModel: HomeScreenViewModel,
+    profileViewModel: ProfileScreenViewModel,
+    logOut: () -> Unit,
+
+    itineraryViewModel: ItineraryViewModel,
+    deleteUser: () -> Unit,
+) {
     val bottomNavController = rememberNavController()
-    val homeViewModel=hiltViewModel<HomeScreenViewModel>()
-    val itineraryViewModel: ItineraryViewModel=hiltViewModel()
+//    val homeViewModel = hiltViewModel<HomeScreenViewModel>()
+//    val itineraryViewModel: ItineraryViewModel = hiltViewModel()
 
 //    val profileViewModel: ProfileScreenViewModel=hiltViewModel()
     Scaffold(
@@ -38,6 +43,11 @@ fun MainScreen(viewModel: HomeScreenViewModel, profileViewModel: ProfileScreenVi
                     NavigationBarItem(
                         selected = currentRoute == screen.route,
                         onClick = {
+                            if (screen.route == BottomNavScreen.Home.route &&
+                                currentRoute == BottomNavScreen.Home.route &&
+                                homeViewModel.searchInput.value.isNotEmpty()) {
+                                homeViewModel.resetToDefault()
+                            }
                             bottomNavController.navigate(screen.route) {
                                 popUpTo(bottomNavController.graph.startDestinationId) {
                                     saveState = true
@@ -74,22 +84,28 @@ fun MainScreen(viewModel: HomeScreenViewModel, profileViewModel: ProfileScreenVi
                     viewModel = itineraryViewModel
                 )
             }
-            composable(
-                route = BottomNavScreen.Attractions.route
-            ) {
-                AttractionScreen()
-            }
+
             composable(
                 route = BottomNavScreen.Itinerary.route
             ) {
                 ItineraryScreen(
-                    viewModel=itineraryViewModel
+                    viewModel = itineraryViewModel
                 )
             }
+            // implemented the navigation argument
             composable(
-                route = BottomNavScreen.Profile.route
+                route = BottomNavScreen.Profile.route + "?userId={userId}"
             ) {
-                ProfileScreen(viewModel=profileViewModel)
+                val userId = it.arguments?.getString("userId") ?: "default_user"
+                ProfileScreen(
+                    viewModel = profileViewModel,
+                    logOutUser = {
+                        logOut()
+                    },
+                    deleteUser = {
+                        deleteUser()
+                    }
+                )
             }
         }
     }

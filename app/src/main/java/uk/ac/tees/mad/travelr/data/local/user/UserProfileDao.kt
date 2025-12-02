@@ -26,4 +26,8 @@
 
         @Query("DELETE FROM user_profile WHERE userId = :id")
         suspend fun deleteUserById(id: String)
+
+
+        @Query("delete from user_profile")
+        suspend fun deleteAllUser()
     }

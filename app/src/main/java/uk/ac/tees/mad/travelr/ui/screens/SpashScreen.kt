@@ -1,12 +1,14 @@
 package uk.ac.tees.mad.travelr.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +32,7 @@ import uk.ac.tees.mad.travelr.viewmodels.AuthScreenViewModel
 fun SplashScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    fetchProfile:()->Unit,
     viewModel: AuthScreenViewModel = hiltViewModel()
 ) {
     val isLoggedIn = viewModel.isLoggedIn.collectAsStateWithLifecycle()
@@ -48,6 +51,7 @@ fun SplashScreen(
         if (!showSplashScreen.value && isLoggedIn.value != null) {
             // logged in
             if (isLoggedIn.value == true) {
+                fetchProfile()
                 navController.navigate(Screen.HomeScreen.route) {
                     popUpTo(Screen.SplashScreen.route) {
                         inclusive = true
@@ -61,14 +65,14 @@ fun SplashScreen(
         }
     }
 
-    Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
             painter = painterResource(R.drawable.travel_app),
             contentDescription = "travelApp",
             modifier = Modifier.padding(horizontal = 16.dp)
         )
         Spacer(modifier=Modifier.height(16.dp))
-        Text("Discover Your Next Adventure", fontSize = 24.sp)
+        Text("Discover Your Next Adventure", fontSize = 24.sp, color = MaterialTheme.colorScheme.onSurface)
     }
 
 }
@@ -80,6 +84,7 @@ private fun SplashScreenPreview() {
 
     SplashScreen(
         navController = rememberNavController(),
+        fetchProfile = {}
     )
 
 }

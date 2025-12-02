@@ -2,6 +2,7 @@ package uk.ac.tees.mad.travelr.ui.screens.bottom_screens
 
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,7 +37,7 @@ import uk.ac.tees.mad.travelr.data.models.destinations.DestinationData
 import uk.ac.tees.mad.travelr.ui.screens.home.HomeUiState
 import uk.ac.tees.mad.travelr.viewmodels.HomeScreenViewModel
 import uk.ac.tees.mad.travelr.viewmodels.ItineraryViewModel
-
+import androidx.activity.compose.BackHandler
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -51,7 +52,11 @@ fun HomeScreen(
     val homeUiState = homeUiSnapshotState.value
 
 
-
+    BackHandler(
+        enabled = searchQuery.value.isNotEmpty()
+    ) {
+        homeScreenViewModel.resetToDefault()
+    }
 
     Column(
         modifier = Modifier
