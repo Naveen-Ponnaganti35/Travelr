@@ -3,10 +3,9 @@ package uk.ac.tees.mad.travelr.data
 import retrofit2.Response
 import uk.ac.tees.mad.travelr.data.models.cities.CitiesResponse
 import uk.ac.tees.mad.travelr.data.remote.AmadeusApiService
-import javax.inject.Inject
 
 class AmadeusRepository
-@Inject constructor(
+    (
     private val api: AmadeusApiService
 ) {
     suspend fun getActivities(city: String): Response<CitiesResponse> =

@@ -1,13 +1,11 @@
 package uk.ac.tees.mad.travelr.data.remote.auth
 
 import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
 class TokenRepository
-@Inject constructor(
+    (
     private val authService: AuthService,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) {
 
     // check for the valid token if it exist

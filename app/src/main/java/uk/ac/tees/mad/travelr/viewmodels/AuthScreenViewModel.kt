@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,12 +11,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.travelr.ui.states.SignInUiState
 import uk.ac.tees.mad.travelr.ui.states.SignUpUiState
-import javax.inject.Inject
 
-
-@HiltViewModel
 class AuthScreenViewModel
-@Inject constructor() : ViewModel() {
+    : ViewModel() {
 
     private val _signInUiState = MutableStateFlow(SignInUiState())
     val signInUiState = _signInUiState.asStateFlow()
@@ -86,7 +82,7 @@ class AuthScreenViewModel
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         onSuccess()
-                        _signUpUiState.value= SignUpUiState()
+                        _signUpUiState.value = SignUpUiState()
                     } else {
                         onError(task.exception?.message ?: "Sign up Failed")
                     }
@@ -110,7 +106,7 @@ class AuthScreenViewModel
                     if (task.isSuccessful) {
 
                         onSuccess()
-                        _signInUiState.value= SignInUiState()
+                        _signInUiState.value = SignInUiState()
                     } else {
                         onError(task.exception?.message ?: "Sign in Failed")
                     }
@@ -121,22 +117,22 @@ class AuthScreenViewModel
     fun forgotPassword(
         onSuccess: () -> Unit,
         onError: (String) -> Unit,
-    ){
-        val email=_signInUiState.value.email
-        if(email.isBlank()){
+    ) {
+        val email = _signInUiState.value.email
+        if (email.isBlank()) {
             onError("Please enter email")
             return
         }
         viewModelScope.launch {
             FirebaseAuth.getInstance().sendPasswordResetEmail(email)
-                .addOnCompleteListener{task->
-                    if(task.isSuccessful ){
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
                         Log.d("Auth", "Reset email sent to: $email")
                         onSuccess()
-                    }else{
+                    } else {
                         onError(task.exception?.message ?: "Failed to send reset email")
                     }
-            }
+                }
         }
     }
 
@@ -164,11 +160,12 @@ class AuthScreenViewModel
         }
     }
 
-    fun logOutUser(){
+    fun logOutUser() {
         // log out the user from the firebase
         viewModelScope.launch {
-            try{ FirebaseAuth.getInstance().signOut() }
-            catch(e:Exception){
+            try {
+                FirebaseAuth.getInstance().signOut()
+            } catch (e: Exception) {
                 Log.d("Logout", "logOutUser: enable to log out ")
             }
         }

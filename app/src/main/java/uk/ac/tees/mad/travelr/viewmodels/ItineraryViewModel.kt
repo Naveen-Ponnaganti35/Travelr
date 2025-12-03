@@ -2,18 +2,14 @@ package uk.ac.tees.mad.travelr.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.travelr.data.local.ItineraryEntity
 import uk.ac.tees.mad.travelr.data.local.ItineraryRepository
 import uk.ac.tees.mad.travelr.data.models.destinations.DestinationData
-import javax.inject.Inject
 
-
-@HiltViewModel
-class ItineraryViewModel @Inject constructor(
+class ItineraryViewModel(
     private val repository: ItineraryRepository
 ) : ViewModel() {
 
@@ -41,9 +37,9 @@ class ItineraryViewModel @Inject constructor(
         }
     }
 
-    fun isInItinerary(id:String,callback:(Boolean)->Unit){
+    fun isInItinerary(id: String, callback: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val exists=repository.isInItinerary(id)
+            val exists = repository.isInItinerary(id)
             callback(exists)
         }
     }
@@ -56,7 +52,7 @@ class ItineraryViewModel @Inject constructor(
         }
     }
 
-    fun deleteAllItineraries(){
+    fun deleteAllItineraries() {
         viewModelScope.launch {
             repository.deleteAllItineraries()
             fetchItineraries()
@@ -64,9 +60,9 @@ class ItineraryViewModel @Inject constructor(
         }
     }
 
-    fun getLatestItinerary(){
+    fun getLatestItinerary() {
         viewModelScope.launch {
-            _latestItinerary.value=repository.getLatestItinerary()
+            _latestItinerary.value = repository.getLatestItinerary()
         }
     }
 

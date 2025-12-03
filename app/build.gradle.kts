@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("kapt")
-    id("com.google.dagger.hilt.android")
     alias(libs.plugins.google.gms.google.services)
 }
 
@@ -70,10 +69,6 @@ dependencies {
     kapt("androidx.room:room-compiler:2.7.0-alpha05")
     implementation("androidx.room:room-ktx:2.7.0-alpha05")
     implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("com.google.dagger:hilt-android:2.57.1")
-    kapt("com.google.dagger:hilt-compiler:2.57.1")
-
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
 // Coroutines
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

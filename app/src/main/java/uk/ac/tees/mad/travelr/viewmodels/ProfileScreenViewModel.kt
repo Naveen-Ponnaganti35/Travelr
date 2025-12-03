@@ -5,18 +5,14 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.travelr.data.models.user.ProfileRepository
 import uk.ac.tees.mad.travelr.data.models.user.UserProfile
 import uk.ac.tees.mad.travelr.utils.CloudinaryUploader
-import javax.inject.Inject
 
-
-@HiltViewModel
-class ProfileScreenViewModel @Inject constructor(
+class ProfileScreenViewModel(
     private val userRepository: ProfileRepository
 ) : ViewModel() {
 
@@ -24,18 +20,18 @@ class ProfileScreenViewModel @Inject constructor(
     val currentUser: StateFlow<UserProfile> = _currentUser
 
 
-
     private val _isUploading = MutableStateFlow(false)
     val isUploading: StateFlow<Boolean> = _isUploading
+
     //
 //    init {
 ////        // Fetch the current user when the ViewModel is created
 //        fetchCurrentUser()
 //    }
     fun uploadProfileImage(context: Context, imageUri: Uri) {
-        _isUploading.value=true
+        _isUploading.value = true
         viewModelScope.launch {
-            try{
+            try {
                 val imageUrl = CloudinaryUploader.uploadImage(context, imageUri)
                 // if upload success
                 if (imageUrl != null) {
@@ -43,8 +39,8 @@ class ProfileScreenViewModel @Inject constructor(
                     // Already saves to Firestore
                     updateUser(updatedUser)
                 }
-            }finally {
-                _isUploading.value=false
+            } finally {
+                _isUploading.value = false
             }
         }
     }

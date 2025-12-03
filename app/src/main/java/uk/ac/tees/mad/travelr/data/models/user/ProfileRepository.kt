@@ -9,9 +9,8 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import uk.ac.tees.mad.travelr.data.local.user.UserProfileDao
 import java.util.UUID
-import javax.inject.Inject
 
-class ProfileRepository @Inject constructor(
+class ProfileRepository(
     private val userDao: UserProfileDao,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 

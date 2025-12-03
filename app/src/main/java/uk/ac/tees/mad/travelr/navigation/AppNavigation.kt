@@ -2,11 +2,15 @@ package uk.ac.tees.mad.travelr.navigation
 
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import uk.ac.tees.mad.travelr.AppViewModelFactory
+import uk.ac.tees.mad.travelr.MyApp
 import uk.ac.tees.mad.travelr.ui.screens.MainScreen
 import uk.ac.tees.mad.travelr.ui.screens.SignInScreen
 import uk.ac.tees.mad.travelr.ui.screens.SignUpScreen
@@ -20,13 +24,22 @@ import uk.ac.tees.mad.travelr.viewmodels.ProfileScreenViewModel
 fun AppNavigation(modifier: Modifier = Modifier) {
 
     val navController = rememberNavController()
-    val authViewModel = hiltViewModel<AuthScreenViewModel>()
+    val context = LocalContext.current.applicationContext as MyApp
+    val factory = remember { AppViewModelFactory(context) }
 
-    val homeViewModel = hiltViewModel<HomeScreenViewModel>()
 
-    val profileViewModel = hiltViewModel<ProfileScreenViewModel>()
+    val authViewModel: AuthScreenViewModel =
+        viewModel(factory = factory)
 
-    val itinerariesViewModel = hiltViewModel<ItineraryViewModel>()
+    val homeViewModel: HomeScreenViewModel =
+        viewModel(factory = factory)
+
+    val profileViewModel: ProfileScreenViewModel =
+        viewModel(factory = factory)
+
+    val itinerariesViewModel: ItineraryViewModel =
+        viewModel(factory = factory)
+
 
     NavHost(navController = navController, startDestination = Screen.SplashScreen.route) {
 

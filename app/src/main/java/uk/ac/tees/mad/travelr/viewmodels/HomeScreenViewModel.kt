@@ -3,7 +3,6 @@ package uk.ac.tees.mad.travelr.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,11 +11,8 @@ import kotlinx.coroutines.launch
 import uk.ac.tees.mad.travelr.data.AmadeusRepository
 import uk.ac.tees.mad.travelr.ui.screens.home.HomeUiState
 import java.util.Locale
-import javax.inject.Inject
 
-
-@HiltViewModel
-class HomeScreenViewModel @Inject constructor(
+class HomeScreenViewModel(
     private val repository: AmadeusRepository
 ) : ViewModel() {
 
@@ -78,7 +74,7 @@ class HomeScreenViewModel @Inject constructor(
 
     fun fetchActivities(cityCode: String) {
         viewModelScope.launch {
-            try{
+            try {
 
 
 //                _activitiesState.value = NetworkResult.Loading()
@@ -155,7 +151,10 @@ class HomeScreenViewModel @Inject constructor(
                         return@launch
                     }
 
-                    Log.d("lat and long", "fetchActivities: ${firstValidGeoCode.latitude} and ${firstValidGeoCode.longitude} ")
+                    Log.d(
+                        "lat and long",
+                        "fetchActivities: ${firstValidGeoCode.latitude} and ${firstValidGeoCode.longitude} "
+                    )
                     // second api call
                     fetchDestination(firstValidGeoCode.latitude, firstValidGeoCode.longitude)
 
@@ -184,7 +183,7 @@ class HomeScreenViewModel @Inject constructor(
                     }
 //                    _activitiesState.value = NetworkResult.Error(response.errorBody()?.string())
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 val errorMessage = when (e) {
                     is java.net.UnknownHostException -> "No internet connection"
                     is java.net.SocketTimeoutException -> "Connection timeout"
@@ -205,7 +204,7 @@ class HomeScreenViewModel @Inject constructor(
 
     fun fetchDestination(latitude: Double, longitude: Double) {
         viewModelScope.launch {
-            try{
+            try {
 
 
                 //            _destinationState.value=NetworkResult.Loading()
@@ -239,7 +238,7 @@ class HomeScreenViewModel @Inject constructor(
                     }
                     //                _destinationState.value = NetworkResult.Error(response.errorBody()?.string())
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 val errorMessage = when (e) {
                     is java.net.UnknownHostException -> "No internet connection"
                     is java.net.SocketTimeoutException -> "Connection timeout"
