@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import uk.ac.tees.mad.travelr.data.models.user.ProfileRepository
 import uk.ac.tees.mad.travelr.data.models.user.UserProfile
 import uk.ac.tees.mad.travelr.utils.CloudinaryUploader
+import kotlin.coroutines.cancellation.CancellationException
 
 class ProfileScreenViewModel(
     private val userRepository: ProfileRepository
@@ -30,20 +31,29 @@ class ProfileScreenViewModel(
 //    }
     fun uploadProfileImage(context: Context, imageUri: Uri) {
         _isUploading.value = true
+
         viewModelScope.launch {
             try {
                 val imageUrl = CloudinaryUploader.uploadImage(context, imageUri)
-                // if upload success
-                if (imageUrl != null) {
-                    val updatedUser = _currentUser.value.copy(profileImageUrl = imageUrl)
-                    // Already saves to Firestore
-                    updateUser(updatedUser)
-                }
+
+                val updatedUser = _currentUser.value.copy(
+                    profileImageUrl = imageUrl
+                )
+
+                updateUser(updatedUser)
+
+            } catch (e: CancellationException) {
+                throw e // never swallow cancellation
+
+            } catch (e: Exception) {
+                Log.e("ProfileUpload", "Upload failed", e)
+
             } finally {
                 _isUploading.value = false
             }
         }
     }
+
 
 
     fun fetchCurrentUser() {
